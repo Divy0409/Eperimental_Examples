@@ -13,20 +13,34 @@ library(plotly)
 library(ggplot2)
 library(readxl)
 
-# Width vs Length by Time scatter plot
-file_path <- "ROS_EX.txt"  
+#Length vs Time Scatter Plot with increasing Width:
+# Read the text file into a dataframe called helicopter_data
+# Replace "ROS_EX.txt" with the actual path of your data file
+file_path <- "ROS_EX.txt"
+helicopter_data <- read.table(file_path, header = TRUE, sep = "\t")
 
-# Read the text file
-helicopter_data <- read.table(file_path, header = TRUE, sep = "\t")  # Use appropriate separator, e.g., "\t" for tab-separated
+# Load the dplyr package for data manipulation
+library(dplyr)
 
-# Create the scatter plot
-ggplot(helicopter_data, aes(x = Length, y = Width, color = Time)) +
-  geom_point(size = 5) +
-  scale_color_gradient(low = "green", high = "red") +
-  labs(title = "Scatter Plot: Width vs Length by Time",
-       x = "Width",
-       y = "Length") +
-  theme_minimal()
+# Filter the data to select the highest Time value for each Helicopter_ID
+filtered_data <- helicopter_data %>%
+  group_by(Helicopter_ID) %>%  # Group the data by each Helicopter_ID
+  filter(Time == max(Time)) %>%  # Within each group, keep only the row with the highest Time value
+  ungroup()  # Remove grouping information from the dataframe
+
+# Load the ggplot2 package for plotting
+library(ggplot2)
+
+# Create a scatter plot using ggplot2
+ggplot(filtered_data, aes(x = Length, y = Time, color = Width)) +  # Define the aesthetics: Length on the x-axis, Time on the y-axis, and Width for the color gradient
+  geom_point(size = 5) +  # Add points to the plot, with a specified size
+  scale_color_gradient(low = "green", high = "red") +  # Define a color gradient from green to red based on Width values
+  labs(title = "Scatter Plot: Length vs Time by Increasing Width",  # Set the title of the plot
+       x = "Length",  # Label for the x-axis
+       y = "Time") +  # Label for the y-axis
+  theme_minimal()  # Apply a minimal theme for a clean look
+
+
 
 # Create the boxplot of Time by Width
 # 'aes(x = factor(Width), y = Time)' maps the Width (as a factor) to the x-axis and Time to the y-axis
@@ -43,6 +57,8 @@ ggplot(helicopter_data, aes(x = factor(Width), y = Time)) +
   # Adjust the x-axis text to be angled at 45 degrees and horizontally justified to 1 for better readability
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+
+
 # Create the boxplot of Time by Length
 # 'aes(x = factor(Length), y = Time)' maps the Length (as a factor) to the x-axis and Time to the y-axis
 ggplot(helicopter_data, aes(x = factor(Length), y = Time)) +
@@ -58,6 +74,7 @@ ggplot(helicopter_data, aes(x = factor(Length), y = Time)) +
   # Adjust the x-axis text to be angled at 45 degrees and horizontally justified to 1 for better readability
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+
 # Bubble plot with Time affecting the size of bubbles
 ggplot(helicopter_data, aes(x = Width, y = Length, size = Time)) +
   geom_point(alpha = 0.7) +  # Set alpha for transparency
@@ -69,6 +86,7 @@ ggplot(helicopter_data, aes(x = Width, y = Length, size = Time)) +
     size = "Time"
   ) +
   theme_minimal()
+
 
 if (!require("dplyr")) install.packages("dplyr")
 
@@ -95,6 +113,8 @@ ggplot(data_binned, aes(x = Width_bin, y = Length_bin, fill = Mean_Time)) +
     fill = "Mean Time"
   ) +
   theme_minimal()
+
+
 
 # For Question 1 (c)
 
@@ -130,6 +150,8 @@ model <- lm(Time ~ Length, data = helicopter_data)
 # Display the summary of the model
 summary(model)
 
+
+
 # For Question 2 (a):
 
 # Set parameters
@@ -156,6 +178,7 @@ abline(a = 30, b = 10, col="blue", lwd=2)  # True line y = 30 + 10x
 
 # Add legend
 legend("topright", legend=c("Data Points", "True Line"), col=c("black", "blue"), pch=c(19, NA), lty=c(NA, 1), lwd=c(NA, 2))
+
 
 # For Question 2 (b):
 
